@@ -1,6 +1,13 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const express = require('express');
+
+// Dummy server for Render Web Service port binding
+const app = express();
+const port = process.env.PORT || 10000;
+app.get('/', (req, res) => res.send('Discord Bot is running!'));
+app.listen(port, () => console.log(`Dummy server listening on port ${port}`));
 
 // Initialize Discord Client
 const client = new Client({

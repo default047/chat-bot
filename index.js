@@ -7,7 +7,14 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 10000;
 app.get('/', (req, res) => res.send('Discord Bot is running!'));
-app.listen(port, () => console.log(`Dummy server listening on port ${port}`));
+app.listen(port, () => {
+    console.log(`Dummy server listening on port ${port}`);
+    // Uyku modunu engellemek iin kendi kendine HTTP isteYi at (Her 5 dakikada bir)
+    setInterval(() => {
+        const url = `http://localhost:${port}`;
+        fetch(url).then(res => res.text()).then(body => console.log("Keep-alive ping atld:", body)).catch(err => console.error(err));
+    }, 5 * 60 * 1000);
+});
 
 // Initialize Discord Client
 const client = new Client({
@@ -43,6 +50,29 @@ client.once('ready', () => {
             console.error("Bump interval hatası:", error);
         }
     }, 130 * 60 * 1000);
+
+    // Render uyku modunu engellemek için her 7 dakikada bir #moderatör-only kanalına rastgele kısa bir mesaj gönder.
+    setInterval(async () => {
+        const messages = [
+            "sistem aktif",
+            "bot online",
+            "kontrol edildi: ok",
+            "ping: pong",
+            "sistem taraması temiz"
+        ];
+        const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+
+        try {
+            client.guilds.cache.forEach(guild => {
+                const modChannel = guild.channels.cache.find(c => c.name === 'moderatör-only');
+                if (modChannel) {
+                    modChannel.send(`[Oto-Uyandırma]: ${randomMsg}`).catch(console.error);
+                }
+            });
+        } catch (error) {
+            console.error("Wakeup interval hatası:", error);
+        }
+    }, 7 * 60 * 1000);
 });
 
 // Yeni üye katıldığında çalışacak olay (GuildMemberAdd)

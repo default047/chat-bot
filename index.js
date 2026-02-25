@@ -35,44 +35,6 @@ const model = genAI.getGenerativeModel({
 
 client.once('ready', () => {
     console.log(`Bot giriş yaptı: ${client.user.tag}`);
-
-    // Her 130 dakikada (130 * 60 * 1000 milisaniye) bir çalışacak döngü
-    setInterval(async () => {
-        try {
-            // Botun bulunduğu tüm sunuculardaki kanalları tara
-            client.guilds.cache.forEach(guild => {
-                const modChannel = guild.channels.cache.find(c => c.name === 'moderatör-only');
-                if (modChannel) {
-                    modChannel.send('/bump').catch(console.error);
-                }
-            });
-        } catch (error) {
-            console.error("Bump interval hatası:", error);
-        }
-    }, 130 * 60 * 1000);
-
-    // Render uyku modunu engellemek için her 7 dakikada bir #moderatör-only kanalına rastgele kısa bir mesaj gönder.
-    setInterval(async () => {
-        const messages = [
-            "sistem aktif",
-            "bot online",
-            "kontrol edildi: ok",
-            "ping: pong",
-            "sistem taraması temiz"
-        ];
-        const randomMsg = messages[Math.floor(Math.random() * messages.length)];
-
-        try {
-            client.guilds.cache.forEach(guild => {
-                const modChannel = guild.channels.cache.find(c => c.name === 'moderatör-only');
-                if (modChannel) {
-                    modChannel.send(`[Oto-Uyandırma]: ${randomMsg}`).catch(console.error);
-                }
-            });
-        } catch (error) {
-            console.error("Wakeup interval hatası:", error);
-        }
-    }, 7 * 60 * 1000);
 });
 
 // Yeni üye katıldığında çalışacak olay (GuildMemberAdd)

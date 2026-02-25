@@ -11,7 +11,7 @@ app.listen(port, () => {
     console.log(`Dummy server listening on port ${port}`);
     // Uyku modunu engellemek iin kendi kendine HTTP isteYi at (Her 5 dakikada bir)
     setInterval(() => {
-        const url = `http://localhost:${port}`;
+        const url = process.env.RENDER_EXTERNAL_URL || `http://localhost:${port}`;
         fetch(url).then(res => res.text()).then(body => console.log("Keep-alive ping atld:", body)).catch(err => console.error(err));
     }, 5 * 60 * 1000);
 });

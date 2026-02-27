@@ -37,20 +37,32 @@ client.once('ready', () => {
     console.log(`Bot giriş yaptı: ${client.user.tag}`);
 });
 
-// Yeni üye katıldığında çalışacak olay (GuildMemberAdd)
-client.on('guildMemberAdd', async member => {
-    try {
-        const welcomeChannel = member.guild.channels.cache.find(ch => ch.name === '💬┃chat');
-        if (!welcomeChannel) return; // Eğer '💬┃chat' kanalı yoksa hiçbir şey yapma
-
-        // Yeni gelen kullanıcıyı etiketleyerek hoş geldin mesajı at
-        await welcomeChannel.send(`Hoş geldin <@${member.user.id}>! Sunucuya katıldığın için sevindik. 🎉`);
-    } catch (error) {
-        console.error("Karşılama mesajı hatası:", error);
-    }
-});
-
 client.on('messageCreate', async (message) => {
+    // '#üye-gi̇ri̇ş' kanalındaki bildirimleri dinle
+    if (message.channel.name === 'üye-gi̇ri̇ş') {
+        let joinedUser = null;
+
+        // Discord'un standart sunucuya katılım mesajı (USER_JOIN tipi)
+        if (message.type === 7) {
+            joinedUser = message.author;
+        }
+        // Veya bildirimde bir kullanıcı etiketlenmişse (başka bir bot veya webhook tarafından)
+        else if (message.mentions.users.size > 0) {
+            // Etiketlenen bot olmayan ilk kullanıcıyı bul
+            joinedUser = message.mentions.users.find(u => !u.bot) || message.mentions.users.first();
+        }
+
+        // Eğer geçerli bir kullanıcı bulunursa ve bot değilse '#💬┃chat' kanalında mesaj at
+        if (joinedUser && !joinedUser.bot) {
+            const chatChannel = message.guild.channels.cache.find(ch => ch.name === '💬┃chat');
+            if (chatChannel) {
+                await chatChannel.send(`Hoş geldin <@${joinedUser.id}>, aramıza katıldığın için teşekkür ederiz! Nasılsın? 😊`);
+            }
+        }
+        return; // Bu kanal için diğer işlemleri atla
+    }
+
+    // Diğer kanallardaki veya genel mesajlar için:
     // Kendi mesajlarımızı veya diğer botların mesajlarını görmezden gel
     if (message.author.bot) return;
 
